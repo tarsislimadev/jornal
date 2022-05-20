@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jornal - Painel</title>
+</head>
+
+<body>
+
+  <div id="app"></div>
+
+  <script src="./back.js"></script>
+  <script src="./front.js"></script>
+
+  <script>
+    const elBody = Helper.element(document.body)
+    elBody.style('margin', '0')
+    elBody.style('padding', '0')
+    elBody.style('font-size', '18px')
+    elBody.style('background-color', '#eeeeee')
+
+    const app = Helper.id('app')
+
+    const form = new nElement({ component: { name: 'form' } })
+
+    form.styleContainer('width', '30rem')
+    form.styleContainer('margin', '2rem auto')
+    form.style('width', '100%')
+    form.style('background-color', '#ffffff')
+    form.style('display', 'inline-block')
+    form.style('padding', '1rem')
+
+    const title = new nText()
+    title.styleContainer('display', 'inline-block')
+    title.styleContainer('width', '100%')
+    title.style('font-size', '2rem')
+    title.style('text-align', 'center')
+    title.setText('Jornal')
+    form.append(title)
+
+    const input = new nTextComponent()
+    input.label.setText('E-mail')
+    form.append(input)
+
+    const button = new nButton()
+    button.style('display', 'inline-block')
+    button.style('padding', '1rem')
+    button.style('border', 'none')
+    button.style('width', '100%')
+    button.setText('Entrar')
+    button.on('click', () => 
+      Api.login({ email: input.input.getValue() })
+        .catch((error) => {
+          switch (error.type) {
+            case 'validation': {
+              input.error.setText(error.get('email'))
+            } break;
+
+            case 'error-response': {
+              // TODO
+            } break;
+          }
+        })
+    )
+    form.append(button)
+
+    app.append(form)
+
+  </script>
+
+</body>
+
+</html>
