@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+
+  panel:
+    hostname: panel
+    build: './panel'
+    restart: always
+    volumes:
+      - './panel/html:/usr/share/nginx/html'
+    ports:
+      - '80:80'
+
+  api_users_login:
+    hostname: api_users_login
+    build: './api/users-login'
+    restart: always
+    volumes:
+      - './api/users-login:/jornal/app'
+      - './api/commons:/jornal/commons'
+      - './data:/jornal/data'
