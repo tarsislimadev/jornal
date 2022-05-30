@@ -2,20 +2,36 @@ version: '3'
 
 services:
 
-  panel:
-    hostname: panel
-    build: './panel'
+  www:
+    hostname: www
+    build: './cloud/public/www'
     restart: always
     volumes:
-      - './panel/html:/usr/share/nginx/html'
+      - './cloud/public/www/html:/usr/share/nginx/html'
     ports:
       - '80:80'
 
-  api_users_login:
-    hostname: api_users_login
-    build: './api/users-login'
+  panel:
+    hostname: panel
+    build: './cloud/public/panel'
     restart: always
     volumes:
-      - './api/users-login:/jornal/app'
-      - './api/commons:/jornal/commons'
+      - './cloud/public/panel/html:/usr/share/nginx/html/panel'
+
+  api_users_login:
+    hostname: api_users_login
+    build: './cloud/api/users-login'
+    restart: always
+    volumes:
+      - './cloud/api/users-login:/jornal/app'
+      - './cloud/api/commons:/jornal/commons'
+      - './data:/jornal/data'
+
+  api_users_register:
+    hostname: api_users_register
+    build: './cloud/api/users-register'
+    restart: always
+    volumes:
+      - './cloud/api/users-register:/jornal/app'
+      - './cloud/api/commons:/jornal/commons'
       - './data:/jornal/data'
