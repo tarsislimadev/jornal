@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jornal - Painel</title>
+</head>
+
+<body>
+
+  <div id="app"></div>
+
+  <script src="./back.js"></script>
+  <script src="./front.js"></script>
+  <script src="./commons.js"></script>
+
+  <script>
+    const app = nElement.fromId('app')
+
+    const center = new nContainerComponent()
+
+    const page_title = new nH1()
+    page_title.setText('Jornal')
+    center.top.append(page_title)
+
+    const news_create_link = new nLink()
+    news_create_link.setText('Nova notícia')
+    news_create_link.href('news_create.html')
+    center.left.append(news_create_link)
+
+    const news_list = new nElement()
+    // TODO
+    center.left.append(news_list)
+
+    app.append(center)
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jornal - Painel</title>
+</head>
+
+<body>
+
+  <div id="app"></div>
+
+  <script src="./back.js"></script>
+  <script src="./front.js"></script>
+  <script src="./commons.js"></script>
+
+  <script>
+    const app = nElement.fromId('app')
+
+    const form = new nCenterForm()
+
+    const title = new nH1()
+    title.setText('Jornal')
+    form.append(title)
+
+    const input = new nTextInputComponent()
+    input.label.setText('E-mail')
+    form.append(input)
+
+    const button = new nButton()
+    button.setText('Entrar')
+    button.on('click', () => {
+      const email = input.input.getValue()
+
+      Api.usersLogin({ email })
+        .catch((error) => {
+          switch (error.type) {
+            case 'validation':
+              return input.error.setText(error.get('email'))
+
+            case 'error-response':
+              return errors.setText(error.getMessage())
+          }
+        })
+    })
+    form.append(button)
+
+    const errors = new nTextError()
+    form.append(errors)
+
+    const link = new nLink()
+    link.setText('Me cadastrar')
+    link.href('register.html')
+    form.append(link)
+
+    app.append(form)
+  </script>
+
+</body>
+
+</html>
