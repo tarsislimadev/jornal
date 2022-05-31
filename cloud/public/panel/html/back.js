@@ -1,6 +1,12 @@
 
+const ErrorTypes = {
+  VALIDATION: 'validation',
+  RESPONSE: 'error-response',
+}
+
 const Validation = {
   email: (errorMessage = 'E-mail invalido.') => (value) => !!(value.toString().match(/@/ig)) ? null : errorMessage,
+  required: (errorMessage = 'Campo obrigatório') => (value) => !!value ? null : errorMessage,
 }
 
 const Validator = {}
@@ -8,7 +14,7 @@ const Validator = {}
 Validator.errors = function (errors = {}) {
   const self = this
 
-  self.type = 'validation'
+  self.type = ErrorTypes.VALIDATION
 
   self.toJSON = () => errors
 
@@ -94,7 +100,7 @@ Ajax.upload = (file, { name, size, type }) => {
   data.append('size', size)
   data.append('type', type)
 
-  return Ajax.request('POST', [Ajax.BASE_URL, 'upload'], data)
+  return Ajax.request('POST', [Ajax.BASE_URL, 'upload'].join('/'), data)
 }
 
 const Api = {}
@@ -110,4 +116,16 @@ Api.usersRegister = ({ email }) =>
     .validate({ email: [Validation.email()] })
     .then(() => Ajax.post(['users', 'register'], { email }))
     .then(() => Flow.goTo('login.html'))
+
+Api.newsCreate = ({ title, text, files }) =>
+  Validator.with({ title, text, files })
+    .validate({
+      title: [Validation.required(),],
+      text: [Validation.required(),],
+      files: [Validation.required(),],
+    })
+    .then(() => Ajax.post(['news', 'create'], { title, text, files }))
+
+Api.upload = (file, { name, size, type }) =>
+  Ajax.upload(file, { name, size, type })
 

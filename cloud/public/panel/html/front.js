@@ -17,6 +17,9 @@ class nElement {
     const name = options?.component?.name || 'undefined'
     this.container.classList.add(`ct-${name}`)
     this.element.classList.add(`el-${name}`)
+
+    this.style('outline', 'none')
+    this.style('box-sizing', 'border-box')
   }
 
   container = document.createElement('div')
@@ -46,6 +49,12 @@ class nElement {
   focus() {
     const self = this
     self.element.focus()
+    return self
+  }
+
+  attr(name, value) {
+    const self = this
+    self.element.setAttribute(name, value)
     return self
   }
 
@@ -124,6 +133,8 @@ class nTextInput extends nValuable {
       element: { tagName: 'input' }
     })
 
+    this.attr('type', 'text')
+
     this.style('box-shadow', '0 0 0.1rem 0 black')
     this.style('box-sizing', 'border-box')
     this.style('margin', '0 0 0.5rem 0')
@@ -132,8 +143,12 @@ class nTextInput extends nValuable {
     this.style('font', 'inherit')
     this.style('border', 'none')
     this.style('width', '100%')
+  }
 
-    this.element.type = 'text'
+  placeholder(text = '') {
+    const self = this
+    self.attr('placeholder', text)
+    return self
   }
 }
 
@@ -158,6 +173,37 @@ class nTextarea extends nValuable {
   setRows(rows) {
     const self = this
     self.element.rows = rows
+    return self
+  }
+
+  placeholder(text = '') {
+    const self = this
+    self.attr('placeholder', text)
+    return self
+  }
+}
+
+class nFileInput extends nValuable {
+  constructor() {
+    super({
+      component: { name: 'file-input' },
+      element: { tagName: 'input' }
+    })
+
+    const self = this
+
+    self.attr('type', 'file')
+  }
+
+  multiple() {
+    const self = this
+    self.attr('multiple', true)
+    return self
+  }
+
+  accept(accept = '*/*') {
+    const self = this
+    self.attr('accept', accept)
     return self
   }
 }
@@ -199,14 +245,16 @@ class nButton extends nElement {
   constructor() {
     super({
       component: { name: 'button' },
-      element: { tagName: 'button' },
+      element: { tagName: 'button' }
     })
 
     this.style('display', 'inline-block')
     this.style('margin', '0 0 0.5rem 0')
+    this.style('padding', '0.5rem')
+    this.style('cursor', 'pointer')
     this.style('outline', 'none')
-    this.style('padding', '1rem')
     this.style('font', 'inherit')
+    this.style('background-color', '#dddddd')
     this.style('border', 'none')
     this.style('width', '100%')
   }
@@ -244,6 +292,40 @@ class nCenterForm extends nElement {
   }
 }
 
+class nFlex extends nElement {
+  constructor() {
+    super({
+      component: { name: 'flex' }
+    })
+
+    this.style('display', 'flex')
+    this.style('justify-content', 'space-between')
+  }
+}
+
+class nImage extends nElement {
+  constructor() {
+    super({
+      component: { name: 'image' },
+      element: { tagName: 'img' }
+    })
+
+    this.style('max-width', '100%')
+  }
+
+  src(src) {
+    const self = this
+    self.attr('src', src)
+    return self
+  }
+
+  alt(alt) {
+    const self = this
+    self.attr('alt', alt)
+    return self
+  }
+}
+
 // components
 
 class nContainerComponent extends nElement {
@@ -261,13 +343,12 @@ class nContainerComponent extends nElement {
 
     super.append(this.top)
 
-    const middle = new nElement()
-    middle.style('display', 'flex')
+    const middle = new nFlex()
 
     this.left.styleContainer('width', '69%')
-    this.left.styleContainer('margin', '0 0.5rem 0 0')
     middle.append(this.left)
 
+    this.right.styleContainer('width', '30%')
     middle.append(this.right)
 
     super.append(middle)
@@ -311,5 +392,82 @@ class nTextareaComponent extends nElement {
     super.append(this.label)
     super.append(this.textarea)
     super.append(this.error)
+  }
+}
+
+class nGalleryComponent extends nElement {
+  items = []
+
+  constructor() {
+    super({ component: { name: 'gallery-component' } })
+  }
+
+  append(item = new nElement) {
+    const self = this
+    self.items.push(item)
+    super.append(item)
+    return self
+  }
+}
+
+class nGalleryItemComponent extends nElement {
+  image = new nImage()
+  title = new nText()
+  subtitle = new nText()
+
+  constructor() {
+    super({ component: { name: 'gallery-item-component' } })
+
+    const self = this
+
+    self.style('padding', '1rem')
+    self.style('background-color', '#cccccc')
+
+    self.title.style('text-align', 'center')
+    self.subtitle.style('text-align', 'center')
+
+    self.append(self.image)
+    self.append(self.title)
+    self.append(self.subtitle)
+  }
+}
+
+class nFileButtonComponent extends nElement {
+  button = new nButton()
+  file_input = new nFileInput()
+
+  constructor() {
+    super({ component: { name: 'file-button-component' } })
+
+    const self = this
+
+    self.button.setText('Adicionar arquivos')
+    self.button.on('click', () => self.file_input.element.click())
+    self.append(self.button)
+
+    self.file_input.style('display', 'none')
+    self.file_input.on('change', ({ target: { files } }) => {
+      const filesArr = Array.from(files)
+      filesArr.map((file) => {
+        const { name, size, type } = file
+        Api.upload(file, { name, size, type })
+          .then((response) => {
+            const id = response.get('id')
+            const event = new Event('fileloaded')
+
+            event.file = {
+              url: `http://0.0.0.0/files/${id}/file`,
+              id: id,
+              name: name,
+              size: size,
+              type: type,
+            }
+
+            self.element.dispatchEvent(event)
+          })
+          .finally(console.error)
+      })
+    })
+    self.append(self.file_input)
   }
 }

@@ -29,14 +29,57 @@
     page_subtitle.setText('Nova notícia')
     center.top.append(page_subtitle)
 
+    const errors = new nTextError()
+    center.left.append(errors)
+
     const news_title = new nTextInputComponent()
-    news_title.label.setText('Titulo da noticia')
+    news_title.label.setText('Titulo')
+    news_title.input.placeholder('Titulo da notícia')
     center.left.append(news_title)
 
-    const news_news = new nTextareaComponent()
-    news_news.label.setText('Texto da noticia')
-    news_news.textarea.setRows(50)
-    center.left.append(news_news)
+    const news_text = new nTextareaComponent()
+    news_text.label.setText('Texto')
+    news_text.textarea.placeholder('Texto da notícia')
+    news_text.textarea.setRows(20)
+    center.left.append(news_text)
+
+    const save_button = new nButton()
+    save_button.setText('Publicar')
+    save_button.on('click', () => {
+      const title = news_title.input.getValue()
+      const text = news_text.textarea.getValue()
+      const files = []
+
+      Api.newsCreate({ title, text, files })
+        .then(() => Flow.goTo('dashboard.html'))
+        .catch((error) => {
+          switch(error.type) {
+            case ErrorTypes.VALIDATION: {
+              news_title.error.setText(error.get('title'))
+              news_text.error.setText(error.get('text'))
+            } break;
+
+            case ErrorTypes.RESPONSE: {
+              errors.setText(error.getMessage())
+            } break;
+          }
+        })
+    })
+    center.left.append(save_button)
+
+    const files_button = new nFileButtonComponent()
+    files_button.file_input.accept('image/*')
+    files_button.on('fileloaded', ({ file }) => {
+      const item = new nGalleryItemComponent()
+      item.image.src(file.url)
+      item.title.setText(file.name)
+      item.subtitle.setText(file.id)
+      files_list.append(item)
+    })
+    center.right.append(files_button)
+
+    const files_list = new nGalleryComponent()
+    center.right.append(files_list)
 
     app.append(center)
 
