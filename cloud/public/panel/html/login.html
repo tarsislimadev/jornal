@@ -37,10 +37,10 @@
       Api.usersLogin({ email })
         .catch((error) => {
           switch (error.type) {
-            case 'validation':
+            case ErrorTypes.VALIDATION:
               return input.error.setText(error.get('email'))
 
-            case 'error-response':
+            case ErrorTypes.RESPONSE:
               return errors.setText(error.getMessage())
           }
         })
