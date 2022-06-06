@@ -51,3 +51,21 @@ services:
       - './cloud/api/users-register:/jornal/app'
       - './cloud/api/commons:/jornal/commons'
       - './data:/jornal/data'
+
+  api_news_create:
+    hostname: api_news_create
+    build: './cloud/api/news-create'
+    restart: always
+    volumes:
+      - './cloud/api/news-create:/jornal/app'
+      - './cloud/api/commons:/jornal/commons'
+      - './data:/jornal/data'
+
+  api_news_list:
+    hostname: api_news_list
+    build: './cloud/api/news-list'
+    restart: always
+    volumes:
+      - './cloud/api/news-list:/jornal/app'
+      - './cloud/api/commons:/jornal/commons'
+      - './data:/jornal/data'
