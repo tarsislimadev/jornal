@@ -14,25 +14,39 @@
 
   <script src="./back.js"></script>
   <script src="./front.js"></script>
-  <script src="./commons.js"></script>
+  <script src="./component.js"></script>
 
   <script>
     const app = nElement.fromId('app')
 
     const center = new nContainerComponent()
 
-    const page_title = new nH1()
-    page_title.setText('Jornal')
-    center.top.append(page_title)
+    center.top.append((new PageTitleComponent()).titleLink('Jornal'))
 
-    const news_create_link = new nLink()
+    const news_create_link = new nButtonLink()
     news_create_link.setText('Nova notícia')
     news_create_link.href('news_create.html')
-    center.left.append(news_create_link)
+    center.right.append(news_create_link)
+
+    const news_section_title = new nH2()
+    news_section_title.setText('Notícias')
+    news_section_title.style('text-align', 'left')
+    center.left.append(news_section_title)
 
     const news_list = new nElement()
-    // TODO
     center.left.append(news_list)
+
+    Api.newsList({})
+      .then(response => {
+        response.get('list').map((news) => {
+          const item = new nNewsThumb()
+
+          item.title.setText(news.title)
+          item.image.imageId(news.image)
+
+          news_list.append(item)
+        })
+      })
 
     app.append(center)
   </script>
