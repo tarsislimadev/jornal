@@ -1,33 +1,145 @@
 
+const Translations = {
+  'pt-br': {
+    'request entity too large': 'Essa solicitação está além do esperado.',
+    'Can not duplicate this item.': 'Não podemos duplicar esse cadastro.',
+  }
+}
+
+const Translator = ({ in: (language) => ({ speak: (phrase) => Translations[language][phrase] }) })
+
+const Styles = {
+  'default': {
+    'background-color': '#cccccc',
+    'padding-bottom': '0.5rem',
+    'margin-bottom': '0.5rem',
+    'text-align': 'center',
+    'padding': '0.5rem',
+    'margin': '0.5rem',
+    'color': '#000',
+  }
+}
+
+const Str = {
+  normalizeSpecialChar: (letter) => {
+    switch (letter) {
+      case ' ':
+      case '!':
+      case '@':
+      case '#':
+      case '%':
+      case '&':
+      case '*':
+      case '<':
+      case '>':
+      case '(':
+      case ')':
+      case '{':
+      case '}':
+      case '[':
+      case ']':
+      case '+':
+      case '-':
+      case '_':
+      case '=':
+      case ',':
+      case '.':
+      case ':':
+      case ';':
+      case '?':
+      case '|':
+      case '|':
+      case '/':
+      case '"':
+      case '\'':
+      case '\\':
+        letter = '-';
+        break;
+
+      case '$':
+        letter = 's'
+        break;
+
+      case 'á':
+      case 'à':
+      case 'â':
+      case 'ã':
+        letter = 'a';
+        break;
+
+      case 'é':
+      case 'ê':
+        letter = 'e';
+        break;
+
+      case 'í':
+        letter = 'i';
+        break;
+
+      case 'ó':
+      case 'ô':
+      case 'ò':
+      case 'õ':
+        letter = 'o';
+        break;
+
+      case 'ú':
+      case 'ü':
+        letter = 'u';
+        break;
+
+      case 'ç':
+        letter = 'c';
+        break;
+    }
+
+    return letter
+  },
+
+  toURL: (str) => {
+    return str.toString()
+      .split('').map(letter => Str.normalizeSpecialChar(letter))
+      .join('').replace(/[-]+/ig, '-').replace(/^-|-$/ig, '')
+      .trim().toLowerCase()
+  }
+}
+
 const Flow = {}
 
 Flow.goTo = (url) => (window.location = url)
 
 class nElement {
 
+  id = null
+
+  container = document.createElement('div')
+  element = document.createElement('div')
+
+  options = {}
+  logs = {
+    element: [],
+    container: [],
+  }
+
   constructor(options = {}) {
-    if (options?.element?.tagName) {
-      this.element = document.createElement(options?.element?.tagName)
+    this.options = options
+  }
+
+  build() {
+    if (this.options?.element?.tagName) {
+      this.element = document.createElement(this.options.element.tagName)
     }
 
-    if (options?.container?.tagName) {
-      this.container = document.createElement(options?.container?.tagName)
+    if (this.options?.container?.tagName) {
+      this.container = document.createElement(this.options?.container?.tagName)
     }
 
-    const name = options?.component?.name || 'undefined'
+    const name = this.options?.component?.name || undefined
     this.container.classList.add(`ct-${name}`)
     this.element.classList.add(`el-${name}`)
 
     this.style('outline', 'none')
     this.style('box-sizing', 'border-box')
-  }
-
-  container = document.createElement('div')
-  element = document.createElement('div')
-
-  inContainer = {
-    before: [],
-    after: [],
   }
 
   static fromElement(el, options = {}) {
@@ -41,87 +153,128 @@ class nElement {
   }
 
   loadElement(element) {
-    const self = this
-    self.element = element
-    return self
+    this.logs.element.push(['loadElement', element])
+    this.element = element
+    return this
   }
 
   focus() {
-    const self = this
-    self.element.focus()
-    return self
+    this.logs.element.push(['focus'])
+    this.element.focus()
+    return this
   }
 
   attr(name, value) {
-    const self = this
-    self.element.setAttribute(name, value)
-    return self
+    this.logs.element.push(['attr', name, value])
+    if (value !== null) {
+      this.element.setAttribute(name, value)
+      return this
+    } else {
+      return this.element.getAttribute(name)
+    }
   }
 
-  style(name, value) {
-    const self = this
-    self.element.style[name] = value
-    return self
+  data(name, value) {
+    this.logs.element.push(['data', name, value])
+    if (value !== undefined) {
+      this.element.dataset[name] = value
+      return this
+    } else {
+      return this.element.dataset[name]
+    }
+  }
+
+  style(name, value = 'default') {
+    this.logs.element.push(['style', name, value])
+
+    if (value === 'default') {
+      const style = Styles[this.options?.element?.tagName] || Styles['default']
+      value = style[name]
+    }
+
+    this.element.style[name] = value
+    return this
   }
 
   styleContainer(name, value) {
-    const self = this
-    self.container.style[name] = value
-    return self
+    this.logs.container.push(['style', name, value])
+
+    if (value === 'default') {
+      const style = Styles[this.options?.container?.tagName] || Styles['default']
+      value = style[name]
+    }
+
+    this.container.style[name] = value
+    return this
+  }
+
+  id(id) {
+    this.logs.element.push(['id', id])
+    return this.data(id)
   }
 
   setText(text) {
-    const self = this
-    self.element.innerText = text
-    return self
+    this.logs.element.push(['setText', text])
+    if (text) this.element.innerText = text
+    return this
   }
 
   getText() {
-    const self = this
-    return self.element.innerText
+    this.logs.element.push(['getText'])
+    return this.element.innerText
+  }
+
+  clear() {
+    this.logs.element.push(['clear'])
+    this.element.childNodes.forEach(node => node.remove())
+    return this
   }
 
   append(nelement = new nElement) {
-    const self = this
-    self.element.append(nelement.render())
-    return self
+    this.logs.element.push(['append', nelement])
+    this.element.append(nelement.render())
+    return this
   }
 
   set(nelement = new nElement) {
-    const self = this
-    self.element.childNodes.forEach(c => c.remove())
-    self.element.append(nelement.render())
-    return self
+    this.logs.element.push(['set', nelement])
+    this.element.childNodes.forEach(c => c.remove())
+    this.element.append(nelement.render())
+    return this
   }
 
   on(name, func) {
-    const self = this
-    self.element.addEventListener(name, func)
-    return self
+    this.logs.element.push(['on', name])
+    this.element.addEventListener(name, func)
+    return this
   }
 
   render() {
-    const self = this
-
-    self.inContainer.before.map(c => self.container.append(c.render()))
-    self.container.append(self.element)
-    self.inContainer.after.map(c => self.container.append(c.render()))
-
-    return self.container
+    this.logs.element.push(['render'])
+    this.container.append(this.element)
+    return this.container
   }
 }
 
 class nValuable extends nElement {
 
+  disable() {
+    this.attr('disabled', true)
+    return this
+  }
+
+  enable() {
+    this.attr('disabled', '')
+    return this
+  }
+
   setValue(value) {
-    const self = this
-    self.element.value = value
-    return self
+    this.element.value = value
+    return this
   }
 
   getValue() {
-    const self = this
-    return self.element.value
+    return this.element.value
   }
 
 }
@@ -133,22 +286,27 @@ class nTextInput extends nValuable {
       element: { tagName: 'input' }
     })
 
+    this.build()
+  }
+
+  build() {
+    super.build()
+
     this.attr('type', 'text')
 
     this.style('box-shadow', '0 0 0.1rem 0 black')
     this.style('box-sizing', 'border-box')
     this.style('margin', '0 0 0.5rem 0')
-    this.style('padding', '0.5rem')
     this.style('outline', 'none')
     this.style('font', 'inherit')
     this.style('border', 'none')
     this.style('width', '100%')
+    this.style('padding')
   }
 
   placeholder(text = '') {
-    const self = this
-    self.attr('placeholder', text)
-    return self
+    this.attr('placeholder', text)
+    return this
   }
 }
 
@@ -159,10 +317,16 @@ class nTextarea extends nValuable {
       element: { tagName: 'textarea' }
     })
 
+    this.build()
+  }
+
+  build() {
+    super.build()
+
     this.style('box-shadow', '0 0 0.1rem 0 black')
     this.style('box-sizing', 'border-box')
     this.style('margin', '0 0 0.5rem 0')
-    this.style('padding', '0.5rem')
+    this.style('padding')
     this.style('outline', 'none')
     this.style('font', 'inherit')
     this.style('resize', 'none')
@@ -171,15 +335,13 @@ class nTextarea extends nValuable {
   }
 
   setRows(rows) {
-    const self = this
-    self.element.rows = rows
-    return self
+    this.element.rows = rows
+    return this
   }
 
   placeholder(text = '') {
-    const self = this
-    self.attr('placeholder', text)
-    return self
+    this.attr('placeholder', text)
+    return this
   }
 }
 
@@ -190,44 +352,99 @@ class nFileInput extends nValuable {
       element: { tagName: 'input' }
     })
 
+    this.build()
+  }
+
+  build() {
+    super.build()
+
+    this.attr('type', 'file')
+
     const self = this
 
-    self.attr('type', 'file')
+    self.on('change', ({ target: { files } }) => {
+      Array.from(files).forEach((file) => {
+        const { name, size, type } = file
+
+        Api.upload(file, { name, size, type })
+          .then((response) => {
+            const event = new Event('fileloaded')
+            event.file = { name, size, type, id: response.get('id') }
+            self.element.dispatchEvent(event)
+          })
+          .catch((error) => {
+            const event = new Event('fileerror')
+            event.error = error
+            self.element.dispatchEvent(event)
+          })
+          .finally(() => self.element.dispatchEvent(new Event('uploadend')))
+
+        self.element.dispatchEvent(new Event('uploadstart'))
+      })
+    })
   }
 
   multiple() {
-    const self = this
-    self.attr('multiple', true)
-    return self
+    this.attr('multiple', true)
+    return this
   }
 
   accept(accept = '*/*') {
-    const self = this
-    self.attr('accept', accept)
-    return self
+    this.attr('accept', accept)
+    return this
   }
 }
 
 class nText extends nValuable {
   constructor() {
-    super({ component: { name: 'text' } })
+    super({
+      component: { name: 'text' },
+    })
   }
 }
 
-class nTextError extends nText {
+class nSmallText extends nValuable {
   constructor() {
-    super({ component: { name: 'text-error' } })
+    super({
+      component: { name: 'small-text' },
+    })
 
+    this.style('font-size', '0.75rem')
+  }
+}
+
+class nTextError extends nElement {
+  constructor() {
+    super({
+      component: { name: 'text-error' },
+    })
+
+    this.build()
+  }
+
+  build() {
+    super.build()
+
+    this.style('margin-bottom')
     this.style('color', 'red')
   }
 }
 
 class nH1 extends nText {
   constructor() {
-    super({ component: { name: 'h1' } })
+    super({
+      component: { name: 'h1' },
+    })
+
+    this.build()
+  }
+
+  build() {
+    super.build()
 
     this.styleContainer('display', 'inline-block')
     this.styleContainer('width', '100%')
+
     this.style('text-align', 'center')
     this.style('font-size', '3rem')
   }
@@ -235,9 +452,33 @@ class nH1 extends nText {
 
 class nH2 extends nH1 {
   constructor() {
-    super({ component: { name: 'h2' } })
+    super({
+      component: { name: 'h2' },
+    })
+
+    this.build()
+  }
+
+  build() {
+    super.build()
 
     this.style('font-size', '1.5rem')
+  }
+}
+
+class nH3 extends nH2 {
+  constructor() {
+    super({
+      component: { name: 'h3' },
+    })
+
+    this.build()
+  }
+
+  build() {
+    super.build()
+
+    this.style('font-size', '1.25rem')
   }
 }
 
@@ -248,9 +489,15 @@ class nButton extends nElement {
       element: { tagName: 'button' }
     })
 
+    this.build()
+  }
+
+  build() {
+    super.build()
+
     this.style('display', 'inline-block')
     this.style('margin', '0 0 0.5rem 0')
-    this.style('padding', '0.5rem')
+    this.style('padding')
     this.style('cursor', 'pointer')
     this.style('outline', 'none')
     this.style('font', 'inherit')
@@ -267,27 +514,41 @@ class nLink extends nElement {
       element: { tagName: 'a' }
     })
 
+    this.build()
+  }
+
+  build() {
+    super.build()
+
     this.styleContainer('text-align', 'center')
     this.style('text-decoration', 'none')
+    this.style('display', 'inline-block')
   }
 
   href(url) {
-    const self = this
-    self.element.href = url
-    return self
+    this.element.href = url
+    return this
   }
 }
 
-class nCenterForm extends nElement {
+class nButtonLink extends nLink {
   constructor() {
-    super({ component: { name: 'center-form' } })
+    super({
+      component: { name: 'button-link' },
+    })
 
-    this.styleContainer('margin', '2rem auto')
-    this.styleContainer('width', '30rem')
+    this.build()
+  }
 
-    this.style('background-color', '#ffffff')
-    this.style('display', 'inline-block')
-    this.style('padding', '1rem')
+  build() {
+    super.build()
+
+    this.styleContainer('width', '100%')
+
+    this.style('background-color', '#cccccc')
+    this.style('cursor', 'pointer')
+    this.style('padding')
+    this.style('color', '#000')
     this.style('width', '100%')
   }
 }
@@ -295,8 +556,14 @@ class nCenterForm extends nElement {
 class nFlex extends nElement {
   constructor() {
     super({
-      component: { name: 'flex' }
+      component: { name: 'flex' },
     })
+
+    this.build()
+  }
+
+  build() {
+    super.build()
 
     this.style('display', 'flex')
     this.style('justify-content', 'space-between')
@@ -310,164 +577,26 @@ class nImage extends nElement {
       element: { tagName: 'img' }
     })
 
+    this.build()
+  }
+
+  build() {
+    super.build()
+
     this.style('max-width', '100%')
   }
 
   src(src) {
-    const self = this
-    self.attr('src', src)
-    return self
+    return this.attr('src', src)
+  }
+
+  imageId(id) {
+    this.id = id
+    return this.src(`http://0.0.0.0/files/${id}/file`)
   }
 
   alt(alt) {
-    const self = this
-    self.attr('alt', alt)
-    return self
-  }
-}
-
-// components
-
-class nContainerComponent extends nElement {
-
-  top = new nElement()
-  left = new nElement()
-  right = new nElement()
-  bottom = new nElement()
-
-  constructor() {
-    super({ component: { name: 'container-component' } })
-
-    this.style('margin', '0 auto')
-    this.style('width', '50rem')
-
-    super.append(this.top)
-
-    const middle = new nFlex()
-
-    this.left.styleContainer('width', '69%')
-    middle.append(this.left)
-
-    this.right.styleContainer('width', '30%')
-    middle.append(this.right)
-
-    super.append(middle)
-
-    super.append(this.bottom)
-  }
-
-  append() {
-    throw new Error('Can not do this.')
-  }
-}
-
-class nTextInputComponent extends nElement {
-  label = new nText()
-  input = new nTextInput()
-  error = new nTextError()
-
-  constructor() {
-    super({ component: { name: 'text-input-component' } })
-
-    this.label.style('margin', '0 0 0.5rem 0')
-    this.error.style('margin', '0 0 0.5rem 0')
-
-    super.append(this.label)
-    super.append(this.input)
-    super.append(this.error)
-  }
-}
-
-class nTextareaComponent extends nElement {
-  label = new nText()
-  textarea = new nTextarea()
-  error = new nTextError()
-
-  constructor() {
-    super({ component: { name: 'textarea-component' } })
-
-    this.label.style('margin', '0 0 0.5rem 0')
-    this.error.style('margin', '0 0 0.5rem 0')
-
-    super.append(this.label)
-    super.append(this.textarea)
-    super.append(this.error)
-  }
-}
-
-class nGalleryComponent extends nElement {
-  items = []
-
-  constructor() {
-    super({ component: { name: 'gallery-component' } })
-  }
-
-  append(item = new nElement) {
-    const self = this
-    self.items.push(item)
-    super.append(item)
-    return self
-  }
-}
-
-class nGalleryItemComponent extends nElement {
-  image = new nImage()
-  title = new nText()
-  subtitle = new nText()
-
-  constructor() {
-    super({ component: { name: 'gallery-item-component' } })
-
-    const self = this
-
-    self.style('padding', '1rem')
-    self.style('background-color', '#cccccc')
-
-    self.title.style('text-align', 'center')
-    self.subtitle.style('text-align', 'center')
-
-    self.append(self.image)
-    self.append(self.title)
-    self.append(self.subtitle)
-  }
-}
-
-class nFileButtonComponent extends nElement {
-  button = new nButton()
-  file_input = new nFileInput()
-
-  constructor() {
-    super({ component: { name: 'file-button-component' } })
-
-    const self = this
-
-    self.button.setText('Adicionar arquivos')
-    self.button.on('click', () => self.file_input.element.click())
-    self.append(self.button)
-
-    self.file_input.style('display', 'none')
-    self.file_input.on('change', ({ target: { files } }) => {
-      const filesArr = Array.from(files)
-      filesArr.map((file) => {
-        const { name, size, type } = file
-        Api.upload(file, { name, size, type })
-          .then((response) => {
-            const id = response.get('id')
-            const event = new Event('fileloaded')
-
-            event.file = {
-              url: `http://0.0.0.0/files/${id}/file`,
-              id: id,
-              name: name,
-              size: size,
-              type: type,
-            }
-
-            self.element.dispatchEvent(event)
-          })
-          .finally(console.error)
-      })
-    })
-    self.append(self.file_input)
+    this.attr('alt', alt)
+    return this
   }
 }

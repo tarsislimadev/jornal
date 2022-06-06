@@ -18,7 +18,13 @@ Validator.errors = function (errors = {}) {
 
   self.toJSON = () => errors
 
-  self.get = (name) => self.toJSON()[name]
+  self.getData = () => self.toJSON()
+
+  self.getStatus = () => 'validation-errors'
+
+  self.getMessage = () => 'Validation error.'
+
+  self.get = (name) => self.getData()[name]
 }
 
 Validator.with = (fields) => {
@@ -52,6 +58,10 @@ Ajax.SuccessResponse = function ({ responseText }) {
 
   self.getData = () => self.toJSON()['data']
 
+  self.getStatus = () => self.toJSON()['status']
+
+  self.getMessage = () => 'OK'
+
   self.get = (name) => self.getData()[name]
 }
 
@@ -64,11 +74,11 @@ Ajax.ErrorResponse = function ({ responseText }) {
 
   self.getData = () => self.toJSON()['data']
 
-  self.get = (name) => self.getData()[name]
-
-  self.getMessage = () => self.toJSON()['message']
-
   self.getStatus = () => self.toJSON()['status']
+
+  self.getMessage = () => Translator.in('pt-br').speak(self.toJSON()['message'])
+
+  self.get = (name) => self.getData()[name]
 }
 
 Ajax.request = (method, url, data) => new Promise((resolve, reject) => {
@@ -117,14 +127,17 @@ Api.usersRegister = ({ email }) =>
     .then(() => Ajax.post(['users', 'register'], { email }))
     .then(() => Flow.goTo('login.html'))
 
-Api.newsCreate = ({ title, text, files }) =>
-  Validator.with({ title, text, files })
+Api.newsCreate = ({ title, image, text }) =>
+  Validator.with({ title, image, text })
     .validate({
-      title: [Validation.required(),],
-      text: [Validation.required(),],
-      files: [Validation.required(),],
+      title: [Validation.required()],
+      image: [Validation.required()],
+      text: [Validation.required()],
     })
-    .then(() => Ajax.post(['news', 'create'], { title, text, files }))
+    .then(() => Ajax.post(['news', 'create'], { title, image, text }))
+
+Api.newsList = ({ search } = { search: '' }) =>
+  Ajax.post(['news', 'list'], { search })
 
 Api.upload = (file, { name, size, type }) =>
   Ajax.upload(file, { name, size, type })

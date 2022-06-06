@@ -1,5 +1,0 @@
-const elBody = nElement.fromElement(document.body)
-elBody.style('margin', '0')
-elBody.style('padding', '0')
-elBody.style('font-size', '18px')
-elBody.style('background-color', '#eeeeee')
