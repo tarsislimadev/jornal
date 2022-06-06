@@ -5,52 +5,59 @@ class DataObject {
   params = {}
 
   constructor(dir, id) {
-    const self = this
+    this.params.dir = dir
+    this.params.id = id
+    this.params.path = pathPkg.join(dir, id)
 
-    self.params.dir = dir
-    self.params.id = id
-    self.params.path = pathPkg.join(dir, id)
-
-    fsPkg.mkdirSync(self.params.path, { recursive: true })
+    fsPkg.mkdirSync(this.params.path, { recursive: true })
   }
 
   getId() {
-    const self = this
-    return self.params.id
+    return this.params.id
   }
 
   propName(name) {
-    const self = this
-    return pathPkg.join(self.params.path, name)
+    return pathPkg.join(this.params.path, name)
   }
 
   read(name) {
-    const self = this
-    return fsPkg.readFileSync(self.propName(name))
+    return fsPkg.readFileSync(this.propName(name))
   }
 
   readUnsafeString(name = '') {
-    const self = this
-    return self.read(name).toString()
+    return this.read(name).toString()
   }
 
   readString(name = '') {
-    const self = this
-    return self.readUnsafeString(name).replace(/\s+/ig, '')
+    return this.readUnsafeString(name).replace(/\s+/ig, '')
   }
 
   writeString(name, content) {
-    const self = this
-    fsPkg.writeFileSync(self.propName(name), content)
-    return self
+    fsPkg.writeFileSync(this.propName(name), content)
+    return this
   }
 
   writeMany(many) {
     const self = this
+
     Object.keys(many)
       .map((key) => self.writeString(key, many[key].toString()))
 
     return self
+  }
+
+  getProps() {
+    return fsPkg.readdirSync(this.params.path)
+  }
+
+  toJSON() {
+    const self = this
+    const json = { 'id': self.getId() }
+
+    self.getProps()
+      .map((name) => json[name] = self.readString(name))
+
+    return json
   }
 }
 
@@ -65,14 +72,12 @@ class DataBase {
   }
 
   in(dir) {
-    const self = this
-    return new DataBase(pathPkg.join(self.params.dir, dir))
+    return new DataBase(pathPkg.join(this.params.dir, dir))
   }
 
   new() {
-    const self = this
     const id = Date.now().toString() // FIXME: uuid
-    return new DataObject(self.params.dir, id)
+    return new DataObject(this.params.dir, id)
   }
 
   list() {
@@ -81,15 +86,16 @@ class DataBase {
       .map((param) => new DataObject(self.params.dir, param))
   }
 
+  listJSON() {
+    return this.list().map((item) => item.toJSON())
+  }
+
   find(params = {}) {
-    const self = this
-    return self.list()
-      .find((data) => {
-        return Object.keys(params)
-          .every((param) => data.readString(param) === params[param].toString())
-      })
+    return this.list()
+      .find((data) => Object.keys(params)
+        .every((param) => data.readString(param) === params[param].toString())
+      )
   }
 }
 
 module.exports = new DataBase(process.env.DATA_PATH)
-

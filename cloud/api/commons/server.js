@@ -83,8 +83,6 @@ const HttpResponse = function () {
       body,
     ].join(LINE_BREAK))
 
-    console.log({ resp })
-
     return resp
   }
 }
