@@ -14,24 +14,22 @@
 
   <script src="./back.js"></script>
   <script src="./front.js"></script>
-  <script src="./commons.js"></script>
+  <script src="./component.js"></script>
 
   <script>
     const app = nElement.fromId('app')
 
-    const form = new nCenterForm()
+    const center = new nCenterFormComponent()
 
-    const title = new nH1()
-    title.setText('Jornal')
-    form.append(title)
+    center.title.setText('Jornal')
+    center.subtitle.setText('Entrar')
 
     const input = new nTextInputComponent()
     input.label.setText('E-mail')
-    form.append(input)
+    center.form.append(input)
 
-    const button = new nButton()
-    button.setText('Entrar')
-    button.on('click', () => {
+    center.button.setText('Entrar')
+    center.button.on('click', () => {
       const email = input.input.getValue()
 
       Api.usersLogin({ email })
@@ -41,21 +39,15 @@
               return input.error.setText(error.get('email'))
 
             case ErrorTypes.RESPONSE:
-              return errors.setText(error.getMessage())
+              return center.errors.setText(error.getMessage())
           }
         })
     })
-    form.append(button)
 
-    const errors = new nTextError()
-    form.append(errors)
+    center.link.setText('Me cadastrar')
+    center.link.href('register.html')
 
-    const link = new nLink()
-    link.setText('Me cadastrar')
-    link.href('register.html')
-    form.append(link)
-
-    app.append(form)
+    app.append(center)
   </script>
 
 </body>
