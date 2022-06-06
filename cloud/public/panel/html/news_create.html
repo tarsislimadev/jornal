@@ -14,28 +14,46 @@
 
   <script src="./back.js"></script>
   <script src="./front.js"></script>
-  <script src="./commons.js"></script>
+  <script src="./component.js"></script>
 
   <script>
+    const form = {
+      title: '',
+      url: '',
+      description: '',
+      image: '',
+      text: '',
+      files: [],
+    }
+
     const app = nElement.fromId('app')
 
     const center = new nContainerComponent()
 
-    const page_title = new nH1()
-    page_title.setText('Jornal')
-    center.top.append(page_title)
+    center.top.append(new PageTitleComponent().titleLink('Jornal', 'dashboard.html'))
+    center.top.append((new PageSubtitleComponent()).subtitle('Nova notícia'))
 
-    const page_subtitle = new nH2()
-    page_subtitle.setText('Nova notícia')
-    center.top.append(page_subtitle)
-
-    const errors = new nTextError()
-    center.left.append(errors)
+    const news_url = new nTextInputComponent()
+    news_url.label.setText('URL')
+    news_url.input.disable()
+    center.left.append(news_url)
 
     const news_title = new nTextInputComponent()
     news_title.label.setText('Titulo')
     news_title.input.placeholder('Titulo da notícia')
+    news_title.input.on('keyup', ({ target: { value } }) => news_url.input.setValue(Str.toURL(value)))
     center.left.append(news_title)
+
+    const news_description = new nTextInputComponent()
+    news_description.label.setText('Descrição curta')
+    news_description.input.placeholder('Descrição curta da notícia')
+    center.left.append(news_description)
+
+    const news_image_button = new nUploadComponent()
+    news_image_button.file_input.on('change', () => news_image_button.clear())
+    news_image_button.button.setText('Adicionar imagem')
+    news_image_button.file_input.accept('image/*')
+    center.left.append(news_image_button)
 
     const news_text = new nTextareaComponent()
     news_text.label.setText('Texto')
@@ -43,20 +61,24 @@
     news_text.textarea.setRows(20)
     center.left.append(news_text)
 
+    const errors = new nTextError()
+    center.left.append(errors)
+
     const save_button = new nButton()
     save_button.setText('Publicar')
     save_button.on('click', () => {
       const title = news_title.input.getValue()
       const text = news_text.textarea.getValue()
-      const files = []
+      const image = news_image_button.getValue()
 
-      Api.newsCreate({ title, text, files })
+      Api.newsCreate({ title, image, text })
         .then(() => Flow.goTo('dashboard.html'))
         .catch((error) => {
-          switch(error.type) {
+          switch (error.type) {
             case ErrorTypes.VALIDATION: {
               news_title.error.setText(error.get('title'))
               news_text.error.setText(error.get('text'))
+              news_image_button.error.setText(error.get('image'))
             } break;
 
             case ErrorTypes.RESPONSE: {
@@ -67,19 +89,11 @@
     })
     center.left.append(save_button)
 
-    const files_button = new nFileButtonComponent()
+    const files_button = new nUploadComponent()
     files_button.file_input.accept('image/*')
-    files_button.on('fileloaded', ({ file }) => {
-      const item = new nGalleryItemComponent()
-      item.image.src(file.url)
-      item.title.setText(file.name)
-      item.subtitle.setText(file.id)
-      files_list.append(item)
-    })
+    files_button.file_input.multiple()
+    files_button.info.style('text-align', 'center')
     center.right.append(files_button)
-
-    const files_list = new nGalleryComponent()
-    center.right.append(files_list)
 
     app.append(center)
 
