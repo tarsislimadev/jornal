@@ -39,7 +39,7 @@
               return input.error.setText(error.get('email'))
 
             case ErrorTypes.RESPONSE:
-              return center.errors.setText(error.getMessage())
+              return center.error.setText(error.getMessage())
           }
         })
     })
