@@ -41,8 +41,14 @@
         response.get('list').map((news) => {
           const item = new nNewsThumb()
 
-          item.title.setText(news.title)
           item.image.imageId(news.image)
+          item.link.setText(news.title)
+
+          item.link.href(Front.pageLink('news', 'edit', news.id))
+
+          item.text.setText(news.description)
+          
+          item.footer.setText(`${Front.dateDiff(news.created_at)} - Em Eleições 2022 - Por Editor Lima`)
 
           news_list.append(item)
         })
