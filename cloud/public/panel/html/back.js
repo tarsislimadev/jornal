@@ -125,7 +125,7 @@ Api.usersRegister = ({ email }) =>
   Validator.with({ email })
     .validate({ email: [Validation.email()] })
     .then(() => Ajax.post(['users', 'register'], { email }))
-    .then(() => Flow.goTo('login.html'))
+    .then(() => Flow.goTo('index.html'))
 
 Api.newsCreate = ({ title, image, text }) =>
   Validator.with({ title, image, text })
