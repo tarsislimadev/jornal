@@ -27,23 +27,21 @@ Validator.errors = function (errors = {}) {
   self.get = (name) => self.getData()[name]
 }
 
-Validator.with = (fields) => {
-  return {
-    validate: (object) => new Promise((resolve, reject) => {
-      const errors = {}
+Validator.with = (fields) => ({
+  validate: (object) => new Promise((resolve, reject) => {
+    const errors = {}
 
-      Object.keys(object)
-        .map((name) => {
-          const arr = object[name] || []
-          const error = arr.map((val) => val(fields[name])).find(err => err)
-          if (error) errors[name] = error
-        })
+    Object.keys(object)
+      .map((name) => {
+        const arr = object[name] || []
+        const error = arr.map((val) => val(fields[name])).find(err => err)
+        if (error) errors[name] = error
+      })
 
-      if (Object.keys(errors).length) reject(new Validator.errors(errors))
-      else resolve()
-    })
-  }
-}
+    if (Object.keys(errors).length) reject(new Validator.errors(errors))
+    else resolve()
+  })
+})
 
 const Ajax = {}
 
@@ -85,6 +83,8 @@ Ajax.request = (method, url, data) => new Promise((resolve, reject) => {
   const xhr = new XMLHttpRequest()
   xhr.open(method, url, true)
 
+  xhr.setRequestHeader('X-PARAMS-token', Front.getData('token'))
+
   const onComplete = (xhr) => {
     if ([200, '200'].indexOf(xhr.status) !== -1) {
       resolve(new Ajax.SuccessResponse(xhr))
@@ -119,6 +119,7 @@ Api.usersLogin = ({ email }) =>
   Validator.with({ email })
     .validate({ email: [Validation.email()] })
     .then(() => Ajax.post(['users', 'login'], { email }))
+    .then((response) => Front.setData('token', response.get('token')))
     .then(() => Flow.goTo('dashboard.html'))
 
 Api.usersRegister = ({ email }) =>
@@ -127,14 +128,15 @@ Api.usersRegister = ({ email }) =>
     .then(() => Ajax.post(['users', 'register'], { email }))
     .then(() => Flow.goTo('index.html'))
 
-Api.newsCreate = ({ title, image, text }) =>
-  Validator.with({ title, image, text })
+Api.newsCreate = ({ title, description, category, image, text }) =>
+  Validator.with({ title, description, category, image, text })
     .validate({
       title: [Validation.required()],
+      category: [Validation.required()],
       image: [Validation.required()],
       text: [Validation.required()],
     })
-    .then(() => Ajax.post(['news', 'create'], { title, image, text }))
+    .then(() => Ajax.post(['news', 'create'], { title, description, category, image, text }))
 
 Api.newsList = ({ search } = { search: '' }) =>
   Ajax.post(['news', 'list'], { search })

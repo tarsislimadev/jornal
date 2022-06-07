@@ -54,7 +54,7 @@ class nContainerComponent extends nElement {
     super.build()
 
     this.style('margin', '0 auto')
-    this.style('width', '50rem')
+    this.style('width', '60rem')
 
     super.append(this.top)
 
@@ -128,7 +128,7 @@ class nTextareaComponent extends nElement {
   }
 }
 
-class nThumbComponent extends nElement {
+class nImageThumbComponent extends nElement {
   image = new nImage()
   title = new nText()
   subtitle = new nText()
@@ -150,8 +150,8 @@ class nThumbComponent extends nElement {
     this.style('box-sizing')
     this.style('padding')
 
-    this.title.style('text-align', 'center')
-    this.subtitle.style('text-align', 'center')
+    this.title.style('text-align')
+    this.subtitle.style('text-align')
 
     this.append(this.image)
     this.append(this.title)
@@ -185,7 +185,7 @@ class nImageGalleryComponent extends nElement {
   append(id, title, subtitle) {
     this.image_ids.push(id)
 
-    const thumb = new nThumbComponent()
+    const thumb = new nImageThumbComponent()
 
     thumb.title.setText(title)
     thumb.subtitle.setText(subtitle)
@@ -278,8 +278,8 @@ class nCenterFormComponent extends nElement {
     this.styleContainer('width', '30rem')
 
     this.style('display', 'inline-block')
-    this.style('padding')
     this.style('width', '100%')
+    this.style('padding')
 
     this.append(this.title)
     this.append(this.subtitle)
@@ -291,19 +291,65 @@ class nCenterFormComponent extends nElement {
 }
 
 class nNewsThumb extends nElement {
-  title = new nText()
-  subtitle = new nText()
-  description = new nText()
   image = new nImage()
+  link = new nLink()
+  text = new nText()
+  description = new nText()
+  footer = new nText()
 
   constructor() {
     super({
       component: { name: 'news-thumb' },
     })
 
-    this.append(this.title)
-    this.append(this.subtitle)
-    this.append(this.description)
-    this.append(this.image)
+    const divider = new nFlex()
+
+    const left = new nElement()
+    left.styleContainer('width', '30%')
+
+    left.append(this.image)
+    divider.append(left)
+
+    const right = new nElement()
+    right.styleContainer('width', '69%')
+
+    this.link.style('font-weight', 'bold')
+    this.link.style('margin-bottom')
+    this.link.style('color')
+    right.append(this.link)
+
+    right.append(this.text)
+
+    this.description.style('margin-bottom')
+    right.append(this.description)
+
+    this.footer.style('font-size', '0.75rem')
+    right.append(this.footer)
+
+    divider.append(right)
+
+    this.append(divider)
+  }
+}
+
+class nSelectComponent extends nElement {
+  label = new nText()
+  select = new nSelect()
+  error = new nTextError()
+
+  constructor() {
+    super({
+      component: { name: 'select-component' },
+    })
+
+    this.append(this.label)
+
+    this.append(this.select)
+
+    this.append(this.error)
+  }
+
+  loadFromURL(url) {
+    return this.select.loadFromURL(url)
   }
 }

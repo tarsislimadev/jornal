@@ -3,10 +3,21 @@ const Translations = {
   'pt-br': {
     'request entity too large': 'Essa solicitação está além do esperado.',
     'Can not duplicate this item.': 'Não podemos duplicar esse cadastro.',
+    'User not found.': 'Não encontramos alguém com esse e-mail.',
   }
 }
 
-const Translator = ({ in: (language) => ({ speak: (phrase) => Translations[language][phrase] }) })
+const Translator = ({
+  in: (language) => ({
+    speak: (phrase) => {
+      const phrases = Translations[language]
+
+      if (phrases) {
+        return phrases[phrase] || 'no translation'
+      }
+    }
+  })
+})
 
 const Styles = {
   'default': {
@@ -16,7 +27,31 @@ const Styles = {
     'text-align': 'center',
     'padding': '0.5rem',
     'margin': '0.5rem',
+    'width': '100%',
     'color': '#000',
+  }
+}
+
+const Front = {
+  pageLink: (...path) => `http://0.0.0.0/${path.join('/')}`,
+
+  apiLink: (...path) => `http://0.0.0.0/api/v1/${path.join('/')}`,
+  apiLinkPath: (...path) => path.join('/'),
+
+  setData: (name, value) => localStorage.setItem(name, JSON.stringify(value)),
+  getData: (name) => JSON.parse(localStorage.getItem(name)),
+
+  dateDiff: (date = new Date) => {
+    const now = new Date()
+    const diff = Math.floor((now - date) / 1000)
+
+    switch (true) {
+      case diff < 60: return 'Agora mesmo'
+      case diff < 60 * 60: return 'Há poucos minutos'
+      case diff < 60 * 60 * 48: return `Há ${Math.floor(diff / (60 * 60))} horas`
+    }
+
+    return `Há ${Math.floor(diff / (60 * 60 * 24))} dias`
   }
 }
 
@@ -164,6 +199,11 @@ class nElement {
     return this
   }
 
+  placeholder(text = '') {
+    this.attr('placeholder', text)
+    return this
+  }
+
   attr(name, value) {
     this.logs.element.push(['attr', name, value])
     if (value !== null) {
@@ -303,11 +343,6 @@ class nTextInput extends nValuable {
     this.style('width', '100%')
     this.style('padding')
   }
-
-  placeholder(text = '') {
-    this.attr('placeholder', text)
-    return this
-  }
 }
 
 class nTextarea extends nValuable {
@@ -336,11 +371,6 @@ class nTextarea extends nValuable {
 
   setRows(rows) {
     this.element.rows = rows
-    return this
-  }
-
-  placeholder(text = '') {
-    this.attr('placeholder', text)
     return this
   }
 }
@@ -445,8 +475,9 @@ class nH1 extends nText {
     this.styleContainer('display', 'inline-block')
     this.styleContainer('width', '100%')
 
-    this.style('text-align', 'center')
     this.style('font-size', '3rem')
+    this.style('margin-bottom')
+    this.style('text-align')
   }
 }
 
@@ -520,7 +551,8 @@ class nLink extends nElement {
   build() {
     super.build()
 
-    this.styleContainer('text-align', 'center')
+    this.styleContainer('text-align')
+
     this.style('text-decoration', 'none')
     this.style('display', 'inline-block')
   }
@@ -600,3 +632,55 @@ class nImage extends nElement {
     return this
   }
 }
+
+class nSelect extends nValuable {
+  optionElements = []
+
+  constructor() {
+    super({
+      component: { name: 'select' },
+      element: { tagName: 'select' }
+    })
+
+    this.build()
+  }
+
+  build() {
+    super.build()
+
+    this.style('box-shadow', '0 0 0.1rem 0 black')
+    this.style('background-color', '#ffffff')
+    this.style('box-sizing', 'border-box')
+    this.style('margin', '0 0 0.5rem 0')
+    this.style('outline', 'none')
+    this.style('font', 'inherit')
+    this.style('border', 'none')
+    this.style('padding')
+    this.style('width')
+  }
+
+  appendOption({ key = '', value }) {
+    this.optionElements.push({ key, value })
+    const option = document.createElement('option')
+    option.value = key
+    option.innerText = value
+    this.element.append(option)
+
+    return this
+  }
+
+  loadFromURL(url) {
+    const self = this
+
+    Ajax.post([url])
+      .then((response) => response.get('list').map((item) => self.appendOption(item)))
+      .catch((error) => {
+        const event = new Event('error')
+        event.error = error
+        self.element.dispatchEvent(event)
+      })
+
+    return self
+  }
+}
+
