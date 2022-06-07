@@ -24,14 +24,6 @@ class DataObject {
     return fsPkg.readFileSync(this.propName(name))
   }
 
-  readUnsafeString(name = '') {
-    return this.read(name).toString()
-  }
-
-  readString(name = '') {
-    return this.readUnsafeString(name).replace(/\s+/ig, '')
-  }
-
   writeString(name, content) {
     fsPkg.writeFileSync(this.propName(name), content)
     return this
@@ -55,7 +47,7 @@ class DataObject {
     const json = { 'id': self.getId() }
 
     self.getProps()
-      .map((name) => json[name] = self.readString(name))
+      .map((name) => json[name] = self.read(name).toString())
 
     return json
   }
@@ -80,9 +72,13 @@ class DataBase {
     return new DataObject(this.params.dir, id)
   }
 
+  keys() {
+    return fsPkg.readdirSync(this.params.dir)
+  }
+
   list() {
     const self = this
-    return fsPkg.readdirSync(self.params.dir)
+    return self.keys()
       .map((param) => new DataObject(self.params.dir, param))
   }
 
@@ -93,8 +89,13 @@ class DataBase {
   find(params = {}) {
     return this.list()
       .find((data) => Object.keys(params)
-        .every((param) => data.readString(param) === params[param].toString())
+        .every((param) => params[param] == data.read(param))
       )
+  }
+
+  get(id) {
+    return this.list()
+      .find((data) => data.getId() == id)
   }
 }
 
