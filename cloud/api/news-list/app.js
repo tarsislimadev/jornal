@@ -1,3 +1,17 @@
-const newsIndex = require('/jornal/commons/db').in('news')
+const md = require('/jornal/commons/middlewares')
+const db = require('/jornal/commons/db')
+const newsIndex = db.in('news')
+const loginIndex = db.in('logins')
+const usersIndex = db.in('users')
 
-module.exports = (_, res) => res.json({ list: newsIndex.listJSON() })
+module.exports = ({ headers: { token } }, res) => {
+  md.loginUserByToken(token)
+
+  const list = newsIndex.list()
+    .map((news) => ({
+      creator: usersIndex.get(news.read('user_id')).toJSON(),
+      ...news.toJSON(),
+    }))
+
+  return res.json({ list })
+}
