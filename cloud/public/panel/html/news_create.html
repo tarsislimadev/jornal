@@ -49,11 +49,17 @@
     news_description.input.placeholder('Descrição curta da notícia')
     center.left.append(news_description)
 
-    const news_image_button = new nUploadComponent()
-    news_image_button.file_input.on('change', () => news_image_button.clear())
-    news_image_button.button.setText('Adicionar imagem')
-    news_image_button.file_input.accept('image/*')
-    center.left.append(news_image_button)
+    const news_category = new nSelectComponent()
+    news_category.label.setText('Categoria')
+    news_category.select.appendOption({ value: 'Selecione' })
+    news_category.loadFromURL(Front.apiLinkPath('news-categories', 'list'))
+    center.left.append(news_category)
+
+    const news_image = new nUploadComponent()
+    news_image.file_input.on('change', () => news_image.clear())
+    news_image.button.setText('Adicionar imagem')
+    news_image.file_input.accept('image/*')
+    center.left.append(news_image)
 
     const news_text = new nTextareaComponent()
     news_text.label.setText('Texto')
@@ -68,17 +74,21 @@
     save_button.setText('Publicar')
     save_button.on('click', () => {
       const title = news_title.input.getValue()
+      const description = news_description.input.getValue()
+      const category = news_category.select.getValue()
+      const image = news_image.getValue()
       const text = news_text.textarea.getValue()
-      const image = news_image_button.getValue()
 
-      Api.newsCreate({ title, image, text })
+      Api.newsCreate({ title, description, category, image, text })
         .then(() => Flow.goTo('dashboard.html'))
         .catch((error) => {
           switch (error.type) {
             case ErrorTypes.VALIDATION: {
               news_title.error.setText(error.get('title'))
+              news_description.error.setText(error.get('description'))
+              news_category.error.setText(error.get('category'))
+              news_image.error.setText(error.get('image'))
               news_text.error.setText(error.get('text'))
-              news_image_button.error.setText(error.get('image'))
             } break;
 
             case ErrorTypes.RESPONSE: {
@@ -89,10 +99,12 @@
     })
     center.left.append(save_button)
 
+    center.left.append((new nElement()).style('margin-bottom', '1rem'))
+
     const files_button = new nUploadComponent()
     files_button.file_input.accept('image/*')
     files_button.file_input.multiple()
-    files_button.info.style('text-align', 'center')
+    files_button.info.style('text-align')
     center.right.append(files_button)
 
     app.append(center)
