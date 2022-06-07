@@ -1,0 +1,24 @@
+{
+  "status": "ok",
+  "message": null,
+  "data": {
+    "list": [
+      {
+        "key": "1",
+        "value": "Eleições 2022"
+      },
+      {
+        "key": "2",
+        "value": "Futebol"
+      },
+      {
+        "key": "3",
+        "value": "Moda"
+      },
+      {
+        "key": "4",
+        "value": "Economia"
+      }
+    ]
+  }
+}
