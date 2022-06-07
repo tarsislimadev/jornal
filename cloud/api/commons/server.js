@@ -19,7 +19,22 @@ const HttpRequest = function (str) {
 
   self.body = self.parseBody(str)
 
-  self.headers = {} // TODO
+  self.parseHeaders = (req = '') => {
+    const [top, ] = req.toString()
+      .split(/\r?\n\r?\n/ig)
+      .filter(f => f)
+
+    const headers = {}
+
+    top.split(/\r?\n/ig).map((header) => {
+      const [name, ...value] = header.toString().split(': ')
+      headers[name.replace('X-PARAMS-', '')] = value.join(': ')
+    })
+
+    return headers
+  }
+
+  self.headers = self.parseHeaders(str)
 
   self.query = {} // TODO
 
