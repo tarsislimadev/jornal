@@ -6,6 +6,7 @@ const ErrorTypes = {
 
 const Validation = {
   email: (errorMessage = 'E-mail invalido.') => (value) => !!(value.toString().match(/@/ig)) ? null : errorMessage,
+  length: (len = 1, errorMessage = 'Campo obrigatório') => (value) => value.length < len ? errorMessage : null,
   required: (errorMessage = 'Campo obrigatório') => (value) => !!value ? null : errorMessage,
 }
 
@@ -128,15 +129,15 @@ Api.usersRegister = ({ email }) =>
     .then(() => Ajax.post(['users', 'register'], { email }))
     .then(() => Flow.goTo('index.html'))
 
-Api.newsCreate = ({ title, description, category, image, text }) =>
-  Validator.with({ title, description, category, image, text })
+Api.newsCreate = ({ title, description, tags, image, text }) =>
+  Validator.with({ title, description, tags, image, text })
     .validate({
       title: [Validation.required()],
-      category: [Validation.required()],
+      tags: [Validation.length()],
       image: [Validation.required()],
       text: [Validation.required()],
     })
-    .then(() => Ajax.post(['news', 'create'], { title, description, category, image, text }))
+    .then(() => Ajax.post(['news', 'create'], { title, description, tags, image, text }))
 
 Api.newsList = ({ search } = { search: '' }) =>
   Ajax.post(['news', 'list'], { search })
