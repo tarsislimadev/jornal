@@ -40,20 +40,16 @@
 
     const news_title = new nTextInputComponent()
     news_title.label.setText('Titulo')
-    news_title.input.placeholder('Titulo da notícia')
     news_title.input.on('keyup', ({ target: { value } }) => news_url.input.setValue(Str.toURL(value)))
     center.left.append(news_title)
 
     const news_description = new nTextInputComponent()
     news_description.label.setText('Descrição curta')
-    news_description.input.placeholder('Descrição curta da notícia')
     center.left.append(news_description)
 
-    const news_category = new nSelectComponent()
-    news_category.label.setText('Categoria')
-    news_category.select.appendOption({ value: 'Selecione' })
-    news_category.loadFromURL(Front.apiLinkPath('news-categories', 'list'))
-    center.left.append(news_category)
+    const news_tags = new nNotationComponent()
+    news_tags.label.setText('Tags')
+    center.left.append(news_tags)
 
     const news_image = new nUploadComponent()
     news_image.file_input.on('change', () => news_image.clear())
@@ -63,7 +59,6 @@
 
     const news_text = new nTextareaComponent()
     news_text.label.setText('Texto')
-    news_text.textarea.placeholder('Texto da notícia')
     news_text.textarea.setRows(20)
     center.left.append(news_text)
 
@@ -75,18 +70,18 @@
     save_button.on('click', () => {
       const title = news_title.input.getValue()
       const description = news_description.input.getValue()
-      const category = news_category.select.getValue()
+      const tags = news_tags.notation.getValue()
       const image = news_image.getValue()
       const text = news_text.textarea.getValue()
 
-      Api.newsCreate({ title, description, category, image, text })
+      Api.newsCreate({ title, description, tags, image, text })
         .then(() => Flow.goTo('dashboard.html'))
         .catch((error) => {
           switch (error.type) {
             case ErrorTypes.VALIDATION: {
               news_title.error.setText(error.get('title'))
               news_description.error.setText(error.get('description'))
-              news_category.error.setText(error.get('category'))
+              news_tags.error.setText(error.get('tags'))
               news_image.error.setText(error.get('image'))
               news_text.error.setText(error.get('text'))
             } break;
@@ -104,7 +99,6 @@
     const files_button = new nUploadComponent()
     files_button.file_input.accept('image/*')
     files_button.file_input.multiple()
-    files_button.info.style('text-align')
     center.right.append(files_button)
 
     app.append(center)
