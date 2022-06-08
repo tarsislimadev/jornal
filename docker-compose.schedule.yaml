@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+
+  schedule_news_compiler:
+    hostname: schedule_news_compiler
+    build: './cloud/schedule/news-compiler'
+    restart: always
+    volumes:
+      - './cloud/schedule/news-compiler:/jornal/app'
+      - './cloud/commons:/jornal/commons'
+      - './data:/jornal/data'
+
