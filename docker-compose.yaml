@@ -8,6 +8,7 @@ services:
     restart: always
     volumes:
       - './cloud/public/www/html:/usr/share/nginx/html'
+      - './data/public:/usr/share/nginx/html/jornal'
     ports:
       - '80:80'
 
@@ -31,7 +32,7 @@ services:
     restart: always
     volumes:
       - './cloud/api/upload:/go/src'
-      - './cloud/api/commons:/jornal/commons'
+      - './cloud/commons:/jornal/commons'
       - './data:/jornal/data'
 
   api_users_login:
@@ -40,7 +41,7 @@ services:
     restart: always
     volumes:
       - './cloud/api/users-login:/jornal/app'
-      - './cloud/api/commons:/jornal/commons'
+      - './cloud/commons:/jornal/commons'
       - './data:/jornal/data'
 
   api_users_register:
@@ -49,7 +50,7 @@ services:
     restart: always
     volumes:
       - './cloud/api/users-register:/jornal/app'
-      - './cloud/api/commons:/jornal/commons'
+      - './cloud/commons:/jornal/commons'
       - './data:/jornal/data'
 
   api_news_create:
@@ -58,7 +59,7 @@ services:
     restart: always
     volumes:
       - './cloud/api/news-create:/jornal/app'
-      - './cloud/api/commons:/jornal/commons'
+      - './cloud/commons:/jornal/commons'
       - './data:/jornal/data'
 
   api_news_list:
@@ -67,5 +68,5 @@ services:
     restart: always
     volumes:
       - './cloud/api/news-list:/jornal/app'
-      - './cloud/api/commons:/jornal/commons'
+      - './cloud/commons:/jornal/commons'
       - './data:/jornal/data'
