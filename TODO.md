@@ -7,5 +7,5 @@ As noticias tem:
 * Data de publicacao
 * Datas de revisão
 
-[ ] Adicionar identificacao de usuário para as requisicoes AJAX
+[x] Adicionar identificacao de usuário para as requisicoes AJAX
 [ ] Adicionar botão de "sair"
