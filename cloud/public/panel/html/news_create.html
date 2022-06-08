@@ -69,12 +69,13 @@
     save_button.setText('Publicar')
     save_button.on('click', () => {
       const title = news_title.input.getValue()
+      const url = news_url.input.getValue()
       const description = news_description.input.getValue()
       const tags = news_tags.notation.getValue()
       const image = news_image.getValue()
       const text = news_text.textarea.getValue()
 
-      Api.newsCreate({ title, description, tags, image, text })
+      Api.newsCreate({ url, title, description, tags, image, text })
         .then(() => Flow.goTo('dashboard.html'))
         .catch((error) => {
           switch (error.type) {
