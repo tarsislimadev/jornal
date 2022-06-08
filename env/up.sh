@@ -1,1 +1,1 @@
-docker-compose -f $(pwd)/docker-compose.yaml up --remove-orphans --force-recreate --build  
+docker-compose -f $(pwd)/docker-compose.yaml up --force-recreate --build  
