@@ -3,7 +3,7 @@ const Translations = {
   'pt-br': {
     'request entity too large': 'Essa solicitação está além do esperado.',
     'Can not duplicate this item.': 'Não podemos duplicar esse cadastro.',
-    'User not found.': 'Não encontramos alguém com esse e-mail.',
+    'User not found.': 'Não encontramos esse e-mail. Verifique seu cadastro.',
   }
 }
 
@@ -270,6 +270,12 @@ class nElement {
     return this
   }
 
+  erase() {
+    this.logs.element.push(['erase'])
+    this.element.value = ''
+    return this
+  }
+
   append(nelement = new nElement) {
     this.logs.element.push(['append', nelement])
     this.element.append(nelement.render())
@@ -455,8 +461,24 @@ class nTextError extends nElement {
   build() {
     super.build()
 
-    this.style('margin-bottom')
+    this.style('margin-bottom', '0.5rem')
     this.style('color', 'red')
+  }
+}
+
+class nLabel extends nElement {
+  constructor() {
+    super({
+      component: { name: 'label' },
+    })
+
+    this.build()
+  }
+
+  build() {
+    super.build()
+
+    this.style('margin-bottom', '0.5rem')
   }
 }
 
@@ -684,3 +706,60 @@ class nSelect extends nValuable {
   }
 }
 
+class nNotation extends nElement {
+  collection = new nElement()
+  input = new nTextInput()
+
+  phrases = []
+
+  constructor() {
+    super({
+      component: { name: 'notation' },
+    })
+
+    this.build()
+  }
+
+  build() {
+    super.build()
+
+    const self = this
+
+    self.input.on('keyup', (event) => {
+      event.preventDefault()
+
+      switch (event.keyCode.toString()) {
+        case '188':
+        case '13':
+          self.addPhrase(self.input.getValue())
+          break;
+      }
+    })
+    self.append(self.input)
+
+    self.collection.style('clear', 'both')
+    self.append(self.collection)
+  }
+
+  addPhrase(phrase) {
+    this.phrases.push(phrase)
+
+    const el = new nElement()
+
+    el.style('margin', '0.5rem 0.5rem 0.5rem 0')
+    el.style('background-color', '#dddddd')
+    el.style('border-radius', '0.1rem')
+    el.style('display', 'inline')
+    el.style('padding', '0.5rem')
+    el.style('float', 'left')
+
+    el.setText(phrase.replace(',', ''))
+
+    this.collection.append(el)
+    this.input.erase()
+  }
+
+  getValue() {
+    return this.phrases
+  }
+}
