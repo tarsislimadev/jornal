@@ -129,15 +129,15 @@ Api.usersRegister = ({ email }) =>
     .then(() => Ajax.post(['users', 'register'], { email }))
     .then(() => Flow.goTo('index.html'))
 
-Api.newsCreate = ({ title, description, tags, image, text }) =>
-  Validator.with({ title, description, tags, image, text })
+Api.newsCreate = ({ url, title, description, tags, image, text }) =>
+  Validator.with({ url, title, description, tags, image, text })
     .validate({
       title: [Validation.required()],
       tags: [Validation.length()],
       image: [Validation.required()],
       text: [Validation.required()],
     })
-    .then(() => Ajax.post(['news', 'create'], { title, description, tags, image, text }))
+    .then(() => Ajax.post(['news', 'create'], { url, title, description, tags, image, text }))
 
 Api.newsList = ({ search } = { search: '' }) =>
   Ajax.post(['news', 'list'], { search })
