@@ -39,7 +39,7 @@
     Api.newsList({})
       .then(response => {
         response.get('list').map((news) => {
-          const item = new nNewsThumb()
+          const item = new nNewsThumbComponent()
 
           item.image.imageId(news.image)
           item.link.setText(news.title)
