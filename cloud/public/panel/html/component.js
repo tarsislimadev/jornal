@@ -79,7 +79,7 @@ class nContainerComponent extends nElement {
 }
 
 class nTextInputComponent extends nElement {
-  label = new nText()
+  label = new nLabel()
   input = new nTextInput()
   error = new nTextError()
 
@@ -94,9 +94,6 @@ class nTextInputComponent extends nElement {
   build() {
     super.build()
 
-    this.label.style('margin-bottom')
-    this.error.style('margin-bottom')
-
     super.append(this.label)
     super.append(this.input)
     super.append(this.error)
@@ -104,7 +101,7 @@ class nTextInputComponent extends nElement {
 }
 
 class nTextareaComponent extends nElement {
-  label = new nText()
+  label = new nLabel()
   textarea = new nTextarea()
   error = new nTextError()
 
@@ -119,9 +116,6 @@ class nTextareaComponent extends nElement {
   build() {
     super.build()
 
-    this.label.style('margin', '0 0 0.5rem 0')
-    this.error.style('margin', '0 0 0.5rem 0')
-
     super.append(this.label)
     super.append(this.textarea)
     super.append(this.error)
@@ -135,7 +129,7 @@ class nImageThumbComponent extends nElement {
 
   constructor() {
     super({
-      component: { name: 'thumb-component' },
+      component: { name: 'image-thumb-component' },
     })
 
     this.build()
@@ -208,7 +202,7 @@ class nUploadComponent extends nElement {
 
   constructor() {
     super({
-      component: { name: 'file-button-component' },
+      component: { name: 'upload-component' },
     })
 
     this.build()
@@ -222,6 +216,7 @@ class nUploadComponent extends nElement {
     self.button.setText('Adicionar arquivos')
     self.button.on('click', () => self.file_input.element.click())
 
+    self.info.style('text-align')
     self.info.style('margin', '0 0 0.5rem 0')
     self.info.setText('Max.: 1MB; Ext.: jpg, png, webm')
 
@@ -265,7 +260,7 @@ class nCenterFormComponent extends nElement {
 
   constructor() {
     super({
-      component: { name: 'center-form' },
+      component: { name: 'center-form-component' },
     })
 
     this.build()
@@ -286,11 +281,13 @@ class nCenterFormComponent extends nElement {
     this.append(this.form)
     this.append(this.error)
     this.append(this.button)
+
+    this.link.styleContainer('text-align', 'center')
     this.append(this.link)
   }
 }
 
-class nNewsThumb extends nElement {
+class nNewsThumbComponent extends nElement {
   image = new nImage()
   link = new nLink()
   text = new nText()
@@ -299,9 +296,13 @@ class nNewsThumb extends nElement {
 
   constructor() {
     super({
-      component: { name: 'news-thumb' },
+      component: { name: 'news-thumb-component' },
     })
 
+    this.build()
+  }
+
+  build() {
     const divider = new nFlex()
 
     const left = new nElement()
@@ -332,8 +333,8 @@ class nNewsThumb extends nElement {
   }
 }
 
-class nSelectComponent extends nElement {
-  label = new nText()
+class nSelectComponent extends nTextInput {
+  label = new nLabel()
   select = new nSelect()
   error = new nTextError()
 
@@ -342,14 +343,41 @@ class nSelectComponent extends nElement {
       component: { name: 'select-component' },
     })
 
+    this.build()
+  }
+
+  build() {
     this.append(this.label)
-
     this.append(this.select)
-
     this.append(this.error)
   }
 
   loadFromURL(url) {
     return this.select.loadFromURL(url)
+  }
+}
+
+class nNotationComponent extends nElement {
+  label = new nLabel()
+  notation = new nNotation()
+  error = new nTextError()
+
+  constructor() {
+    super({
+      component: { name: 'notation-component' },
+    })
+
+    this.build()
+  }
+
+  build() {
+    const self = this
+
+    self.append(self.label)
+
+    self.notation.on('keyup', () => self.error.clear())
+    self.append(self.notation)
+
+    self.append(self.error)
   }
 }
