@@ -9,6 +9,7 @@ services:
     volumes:
       - './cloud/public/www/html:/usr/share/nginx/html'
       - './data/public:/usr/share/nginx/html/jornal'
+      - './data/upload:/usr/share/nginx/html/files'
     ports:
       - '80:80'
 
@@ -18,13 +19,6 @@ services:
     restart: always
     volumes:
       - './cloud/public/panel/html:/usr/share/nginx/html/panel'
-
-  files:
-    hostname: files
-    build: './cloud/public/files'
-    restart: always
-    volumes:
-      - './data/upload:/usr/share/nginx/html/files'
 
   api_upload:
     hostname: api_upload
