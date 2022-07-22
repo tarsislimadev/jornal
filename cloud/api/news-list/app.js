@@ -1,7 +1,6 @@
 const md = require('/jornal/commons/middlewares')
 const db = require('/jornal/commons/db')
 const newsIndex = db.in('news')
-const loginIndex = db.in('logins')
 const usersIndex = db.in('users')
 
 module.exports = ({ headers: { token } }, res) => {
