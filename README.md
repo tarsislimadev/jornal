@@ -1,17 +1,24 @@
 # Jornal
 
-Só um jornal
+Para empresas de de publicidade e jornalismo
 
 ## Stack
 
-[Docker]()
-[Node.js]()
-[Go Lang]()
+[Docker](https://www.docker.com/)
+
+[Node.js](https://nodejs.org/en/)
+
+[Go Lang](https://go.dev/)
+
 [Nginx](https://nginx.org/)
 
-## How to use
+## Como usar
 
-TODO
+```sh
+bash env/pull.sh
+
+bash env/up.sh
+```
 
 ## License
 
