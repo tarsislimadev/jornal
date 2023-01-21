@@ -4,10 +4,10 @@ services:
 
   www:
     hostname: www
-    build: './cloud/public/www'
+    build: './src/public/www'
     restart: always
     volumes:
-      - './cloud/public/www/html:/usr/share/nginx/html'
+      - './src/public/www/html:/usr/share/nginx/html'
       - './data/public:/usr/share/nginx/html/jornal'
       - './data/upload:/usr/share/nginx/html/files'
     ports:
@@ -15,52 +15,52 @@ services:
 
   panel:
     hostname: panel
-    build: './cloud/public/panel'
+    build: './src/public/panel'
     restart: always
     volumes:
-      - './cloud/public/panel/html:/usr/share/nginx/html/panel'
+      - './src/public/panel/html:/usr/share/nginx/html/panel'
 
   api_upload:
     hostname: api_upload
-    build: './cloud/api/upload'
+    build: './src/api/upload'
     restart: always
     volumes:
-      - './cloud/api/upload:/go/src'
-      - './cloud/commons:/jornal/commons'
+      - './src/api/upload:/go/src'
+      - './src/commons:/jornal/commons'
       - './data:/jornal/data'
 
   api_users_login:
     hostname: api_users_login
-    build: './cloud/api/users-login'
+    build: './src/api/users-login'
     restart: always
     volumes:
-      - './cloud/api/users-login:/jornal/app'
-      - './cloud/commons:/jornal/commons'
+      - './src/api/users-login:/jornal/app'
+      - './src/commons:/jornal/commons'
       - './data:/jornal/data'
 
   api_users_register:
     hostname: api_users_register
-    build: './cloud/api/users-register'
+    build: './src/api/users-register'
     restart: always
     volumes:
-      - './cloud/api/users-register:/jornal/app'
-      - './cloud/commons:/jornal/commons'
+      - './src/api/users-register:/jornal/app'
+      - './src/commons:/jornal/commons'
       - './data:/jornal/data'
 
   api_news_create:
     hostname: api_news_create
-    build: './cloud/api/news-create'
+    build: './src/api/news-create'
     restart: always
     volumes:
-      - './cloud/api/news-create:/jornal/app'
-      - './cloud/commons:/jornal/commons'
+      - './src/api/news-create:/jornal/app'
+      - './src/commons:/jornal/commons'
       - './data:/jornal/data'
 
   api_news_list:
     hostname: api_news_list
-    build: './cloud/api/news-list'
+    build: './src/api/news-list'
     restart: always
     volumes:
-      - './cloud/api/news-list:/jornal/app'
-      - './cloud/commons:/jornal/commons'
+      - './src/api/news-list:/jornal/app'
+      - './src/commons:/jornal/commons'
       - './data:/jornal/data'
